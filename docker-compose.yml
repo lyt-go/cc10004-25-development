@@ -1,5 +1,25 @@
 services:
+  # 迁移任务：先把本地开发库 / 示例数据升到当前版本，成功后再启动前端。
+  migrate:
+    build:
+      context: ./frontend
+      target: build
+    working_dir: /srv/web
+    environment:
+      APP_ENV: local
+    command: ["npm", "run", "migrate:local"]
+    volumes:
+      - dev-data:/srv/web/.local
+
   frontend:
     build: ./frontend
     ports:
       - "5173:5173"
+    environment:
+      APP_ENV: local
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+volumes:
+  dev-data:

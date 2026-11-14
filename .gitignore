@@ -85,3 +85,6 @@ desktop.ini
 *.db
 *.pid
 *.seed
+
+# 迁移脚本的打包产物（由 scripts/build-migrate.mjs 生成）
+frontend/scripts/migrate-local.mjs

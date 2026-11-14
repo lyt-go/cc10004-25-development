@@ -2,12 +2,14 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { downloadEntries, listEntries, moduleMeta, runAction as applyAction } from '@/api/local-service'
 import type { EntryRow } from '@/data/types'
+import LifecycleStagePanel from './LifecycleStagePanel'
 
 const meta = moduleMeta('lifecycle')
 const columns = [
   "模型编号",
   "模型名称",
   "生命周期阶段",
+  "阶段版本",
   "阶段定义事件",
   "阶段停留阈值",
   "流转条件",
@@ -26,18 +28,9 @@ const statuses = [
   "已下线"
 ]
 const stats = [
-  {
-    "label": "生命周期模型总数",
-    "value": 0
-  },
-  {
-    "label": "已启用模型",
-    "value": 0
-  },
-  {
-    "label": "模型评审中",
-    "value": 0
-  }
+  { label: "生命周期模型总数", value: 0 },
+  { label: "已启用模型", value: 0 },
+  { label: "模型评审中", value: 0 },
 ]
 
 export default function LifecycleView() {
@@ -72,6 +65,19 @@ export default function LifecycleView() {
     reload()
   }
 
+  function statValue(label: string): number {
+    if (label === '生命周期模型总数') {
+      return total
+    }
+    if (label === '已启用模型') {
+      return rows.filter((row) => String(row.status) === '已启用').length
+    }
+    if (label === '模型评审中') {
+      return rows.filter((row) => String(row.status) === '模型评审中').length
+    }
+    return 0
+  }
+
   return (
     <section className="page" data-module="lifecycle">
       <header className="page-head">
@@ -93,7 +99,7 @@ export default function LifecycleView() {
         {stats.map((item) => (
           <article key={item.label} className="stat-card">
             <span className="stat-label">{item.label}</span>
-            <strong className="stat-value">{item.value}</strong>
+            <strong className="stat-value">{statValue(item.label)}</strong>
           </article>
         ))}
       </div>
@@ -155,6 +161,8 @@ export default function LifecycleView() {
         <span>共 {total} 条生命周期记录</span>
         {errorMessage && <span className="error-text">{errorMessage}</span>}
       </footer>
+
+      <LifecycleStagePanel />
     </section>
   )
 }
